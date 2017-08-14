@@ -1,5 +1,4 @@
 #include<stdio.h>
-#include<stdlib.h>
 
 int get_looptimes(int a[], int n)
 {
@@ -11,67 +10,71 @@ int get_looptimes(int a[], int n)
     }
     int count=1;
     int j=1;
-    int tmp;
+    int tmp=max;
+    //printf("%d",count);
     while (1)
     {
-        tmp = max/10;
+        tmp = tmp/10;
         count++;
         if(tmp<10)
+        {
             break;
+        }
     }
     return count;
 }
 
 
-void ex_radix_sort(int a[], int n, int loops)
+void ex_radix_sort(int *p, int n, int loop)
 {
-    int tmp_bucket[10][20]={-1};
-    //除子
-    int tmp=1;
+    int buckets[10][20]={0};
+    int d=1;
     int count=1;
-    int index;
-    while(count<=loops)
+    while(count<loop)
     {
-	for(int i=0;i<n;i++)
+        d*=10;
+        count++;
+    }
+    int i,j;
+    for(i = 0; i < n; i++)
+    {
+        int row_index = (*(p + i) / d) % 10;
+        for(j = 0; j < 20; j++)
         {
-            index = (a[i]/tmp)%10;
-            for(int j=0;j<n;j++)
+            if(buckets[row_index][j] == 0)
             {
-		if(tmp_bucket[index][j]==-1)
-                {
-                    tmp_bucket[index][j]=a[i];
-                    break;
-                }
+                buckets[row_index][j] = *(p + i);
+                break;
             }
         }
-        int i,j,k=0;
-        while (j<10)
+    }
+    //将桶中的数，倒回到原有数组中
+    int k = 0;
+    for(i = 0; i < 10; i++)
+    {
+        for(j = 0; j < 20; j++)
         {
-           while(k<n)
-           {   
-               if(tmp_bucket[j][k]!=-1)
-               {  
-                   a[i++]=tmp_bucket[j][k];
-                   tmp_bucket[j][k]=-1;
-                   k++;
-               }                
-               else
-               {
-                   j+=1;
-                   k=0;
-                   break;
-               }
-           }
+            if(buckets[i][j] != 0)
+            {
+                *(p + k) = buckets[i][j];
+                buckets[i][j] = 0;
+                k++;
+            }
         }
-        count++; 
-     }
+    }
+    for(i=0;i<n;i++)
+        printf("%d ",*(p+i));
+    printf("\n");
 }
 
-void radix_sort(int *a, int n)
+
+void radix_sort(int a[], int n)
 {
     int loops=0;
     loops = get_looptimes(a, n);
-    ex_radix_sort(a, n, loops);
+    int i;
+    for(i=1;i<=loops;i++)
+    	ex_radix_sort(a, n, i);
 }
 
 
@@ -84,7 +87,7 @@ int main()
         scanf("%d",&buf[i]);
     radix_sort(buf, n);
     for(int j=0;j<n;j++)
-        printf("%d ",buf[j]);
+    	printf("%d ",buf[j]);
     return 0;
 }
 
